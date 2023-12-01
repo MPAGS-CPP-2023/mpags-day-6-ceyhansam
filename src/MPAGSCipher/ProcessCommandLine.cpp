@@ -7,9 +7,6 @@
 bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
                         ProgramSettings& settings)
 {
-    // Status flag to indicate whether or not the parsing was successful
-    bool processStatus{true};
-
     // Default to expecting information about one cipher
     // (modified by the --multi-cipher argument)
     std::size_t nExpectedCiphers{1};
@@ -48,12 +45,13 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
                 const std::string& arg{cmdLineArgs[i + 1]};
                 for (const auto& elem : arg) {
                     if (!std::isdigit(elem)) {
-                        std::cerr
-                            << "[error] --multi-cipher requires a positive integer argument,\n"
-                            << "        the supplied string (" << arg
-                            << ") could not be successfully converted"
-                            << std::endl;
-                        return false;
+                        throw InvalidKey{"--multi-cipher requires a positive integer argument,\n"};
+                        // std::cerr
+                        //     << "[error] --multi-cipher requires a positive integer argument,\n"
+                        //     << "        the supplied string (" << arg
+                        //     << ") could not be successfully converted"
+                        //     << std::endl;
+                        // return false;
                     }
                 }
                 nExpectedCiphers = std::stoul(arg);
@@ -133,12 +131,12 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
     const std::size_t nTypes{settings.cipherType.size()};
     const std::size_t nKeys{settings.cipherKey.size()};
     if (nTypes != nExpectedCiphers || nKeys != nExpectedCiphers) {
-        std::cerr << "[error] expected types and keys for " << nExpectedCiphers
-                  << " ciphers\n"
-                  << "        but received " << nTypes << " types and " << nKeys
-                  << " keys" << std::endl;
-        processStatus = false;
+        throw MissingArgument("Number of ciphers and number of keys do not match");
+        // std::cerr << "[error] expected types and keys for " << nExpectedCiphers
+        //           << " ciphers\n"
+        //           << "        but received " << nTypes << " types and " << nKeys
+        //           << " keys" << std::endl;
     }
 
-    return processStatus;
+    return true;
 }

@@ -9,6 +9,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <future>
+#include <thread>
 
 int main(int argc, char* argv[])
 {
@@ -100,8 +102,13 @@ int main(int argc, char* argv[])
     std::size_t nCiphers{settings.cipherType.size()};
     ciphers.reserve(nCiphers);
     for (std::size_t iCipher{0}; iCipher < nCiphers; ++iCipher) {
-        ciphers.push_back(CipherFactory::makeCipher(
-            settings.cipherType[iCipher], settings.cipherKey[iCipher]));
+        try {
+            ciphers.push_back(CipherFactory::makeCipher(
+                settings.cipherType[iCipher], settings.cipherKey[iCipher]));
+        } catch (InvalidKey& invKey) {
+            std::cerr << "[error] Invalid Key: " << invKey.what() << std::endl;
+            return 1;
+        }
 
         // Check that the cipher was constructed successfully
         if (!ciphers.back()) {
@@ -118,7 +125,25 @@ int main(int argc, char* argv[])
 
     // Run the cipher(s) on the input text, specifying whether to encrypt/decrypt
     for (const auto& cipher : ciphers) {
-        cipherText = cipher->applyCipher(cipherText, settings.cipherMode);
+        if (cipher->type() != CipherType::Caesar) {
+            cipherText = cipher->applyCipher(cipherText, settings.cipherMode);
+        } else {
+            std::vector<std::future<std::string>> futures{};
+            auto stringOne = cipherText.substr(0, 3);
+            auto stringTwo = cipherText.substr(3, cipherText.size());
+            //
+            for (int nThreads = 0; nThreads < 2; nThreads++) {
+                auto applyCipher = 
+            }
+
+            //
+            auto applyCipher1 = [&] () {return cipher->applyCipher(stringOne, settings.cipherMode);};
+            auto applyCipher2 = [&] () {return cipher->applyCipher(stringTwo, settings.cipherMode);};
+            auto future1 = std::async(std::launch::async, applyCipher1);
+            auto future2 = std::async(std::launch::async, applyCipher2);
+
+
+        }
     }
 
     // Output the encrypted/decrypted text to stdout/file

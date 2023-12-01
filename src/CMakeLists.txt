@@ -31,3 +31,8 @@ add_subdirectory(Testing)
 #   and link it to the MPAGSCipher library
 add_executable(mpags-cipher mpags-cipher.cpp)
 target_link_libraries(mpags-cipher PRIVATE MPAGSCipher)
+
+# - Enable multi-threading
+find_package(Threads)
+add_executable(mpags-cipher mpags-cipher.cpp)
+target_link_libraries(mpags-cipher PRIVATE MPAGSCipher Threads::Threads)
