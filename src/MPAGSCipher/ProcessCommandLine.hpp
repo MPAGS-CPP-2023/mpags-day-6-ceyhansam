@@ -3,6 +3,7 @@
 
 #include "CipherMode.hpp"
 #include "CipherType.hpp"
+#include "Exceptions.hpp"
 
 #include <string>
 #include <vector>

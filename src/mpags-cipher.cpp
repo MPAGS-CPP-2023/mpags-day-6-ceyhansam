@@ -19,13 +19,18 @@ int main(int argc, char* argv[])
     ProgramSettings settings{false, false, "", "", {}, {}, CipherMode::Encrypt};
 
     // Process command line arguments
-    const bool cmdLineStatus{processCommandLine(cmdLineArgs, settings)};
+    try {
+        processCommandLine(cmdLineArgs, settings);
+    } catch (MissingArgument& missArg) {
+        std::cerr << "[error] Missing Argument: " << missArg.what() << std::endl;
+        return 1;
+    }
 
     // Any failure in the argument processing means we can't continue
     // Use a non-zero return value to indicate failure
-    if (!cmdLineStatus) {
-        return 1;
-    }
+    // if (!cmdLineStatus) {
+    //     return 1;
+    // }
 
     // Handle help, if requested
     if (settings.helpRequested) {
